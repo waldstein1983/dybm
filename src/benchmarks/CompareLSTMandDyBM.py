@@ -248,7 +248,7 @@ def learn_DyBM(trainX, trainY, testX, testY, DyBMmodel):
 
     for delay in [3]:
 
-        print "learning with delay =", delay
+        print("learning with delay =", delay)
 
         if saveResults:
             filename = "RMSE_DyBM_" + \
@@ -327,7 +327,7 @@ if __name__ == "__main__":
     scaler = MinMaxScaler(feature_range=(0, 1))
     dataset = scaler.fit_transform(dataset)
 
-    print "Number of Observations/datapoints in each dimension", len(dataset)
+    print("Number of Observations/datapoints in each dimension", len(dataset))
     # split into train and test sets (default 60% train, 40% test)
 
     trainPercentage = 0.6
@@ -340,14 +340,14 @@ if __name__ == "__main__":
     trainX, trainY = create_dataset(train, look_back)
 
     # Check training data size
-    print "Train data X shape: ", trainX.shape
-    print "Train data Y shape: ", trainY.shape
+    print("Train data X shape: ", trainX.shape)
+    print("Train data Y shape: ", trainY.shape)
 
     testX, testY = create_dataset(test, look_back)
 
     # Check test data size
-    print "Test data X shape: ", testX.shape
-    print "Test data Y shape: ", testY.shape
+    print("Test data X shape: ", testX.shape)
+    print("Test data Y shape: ", testY.shape)
 
     learn_DyBM(trainX, trainY, testX, testY, DyBMmodel="RNNGaussian")
 

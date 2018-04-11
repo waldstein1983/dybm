@@ -54,10 +54,18 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 head = os.path.split(dir_path)[0]
 parent = os.path.dirname(head)
 # load the dataset
-dataframe = pandas.read_csv(parent + '/data/daily-total-sunspot-number.csv',
-                            usecols=[1], engine='python', skipfooter=3)
+# dataframe = pandas.read_csv(parent + '/data/Amazon_Book_Inv.csv',
+#                             usecols=[2], engine='python', skipfooter=3)
+dataframe = pandas.read_csv(parent + '/data/Amazon_Book_Inv.csv',
+                            header=0,
+                            # parse_dates=[0],
+                            # index_col=0,
+                            squeeze=True, usecols=[2])
 dataset = dataframe.values
 dataset = dataset.astype('float32')
+
+# plt.plot(dataset)
+# plt.show()
 
 
 def MSE(y_true, y_pred):
@@ -123,6 +131,10 @@ def learn_KerasRNN(trainX, trainY, testX, testY, modelType):
         # trainScore = scaler.inverse_transform(numpy.array([[trainScore]]))
         print('Mean Train Score LSTM: %.5f RMSE' % (trainScore))
 
+        test_predict = model.predict(testX)
+        plt.plot(testY)
+        plt.plot(test_predict)
+        plt.show()
         # Estimate model test performance
         testScore = model.evaluate(testX, testY, verbose=0)
         testScore = math.sqrt(testScore)
@@ -293,6 +305,9 @@ def learn_DyBM(trainX, trainY, testX, testY, DyBMmodel):
             # testing
             # dybm.init_state()
             result2 = dybm.learn(testX, get_result=True)
+            plt.plot(testY)
+            plt.plot(result2["prediction"])
+            plt.show()
             test_rmse = RMSE(testY, result2["prediction"])
 
             print ('test error: %.5f ' % (test_rmse))
@@ -324,14 +339,20 @@ if __name__ == "__main__":
 
     np.random.seed(2)
     # normalize the dataset
+    # better
     scaler = MinMaxScaler(feature_range=(0, 1))
+    # worse, why?
+    scaler = MinMaxScaler(feature_range=(-1, 1))
+    dataset = dataset.reshape(dataset.shape[0],1)
     dataset = scaler.fit_transform(dataset)
 
     print("Number of Observations/datapoints in each dimension", len(dataset))
     # split into train and test sets (default 60% train, 40% test)
 
-    trainPercentage = 0.6
-    train_size = int(len(dataset) * trainPercentage)
+    trainPercentage = 0.8
+    div_id = 364
+    # train_size = int(len(dataset) * trainPercentage)
+    train_size = div_id
     test_size = len(dataset) - train_size
     train, test = dataset[0:train_size, :], dataset[train_size:len(dataset), :]
 
@@ -349,7 +370,11 @@ if __name__ == "__main__":
     print("Test data X shape: ", testX.shape)
     print("Test data Y shape: ", testY.shape)
 
+    # better and faster
     learn_DyBM(trainX, trainY, testX, testY, DyBMmodel="RNNGaussian")
+    # work not well
+    # learn_DyBM(trainX, trainY, testX, testY, DyBMmodel="Gaussian")
+
 
     learn_KerasRNN(trainX, trainY, testX, testY, modelType="LSTM")
     # learn_KerasRNN(trainX, trainY, testX, testY, modelType="SimpleRNN")
